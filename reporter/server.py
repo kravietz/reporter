@@ -11,10 +11,16 @@ from sanic.response import text
 
 __author__ = 'Paweł Krawczyk'
 
+# also import environment variables with SANIC_ prefix
 app = Sanic()
-app.config.from_pyfile('config.py')
 
-database = psycopg2.connect(app.config.DSN)
+database = psycopg2.connect(
+    dbname=app.config.DB_NAME,
+    host=app.config.DB_HOST,
+    port=app.config.DB_PORT,
+    user=app.config.DB_USER,
+    password=app.config.DB_PASS
+)
 
 INSERT = """
 WITH ins_ua AS (
