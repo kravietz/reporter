@@ -76,4 +76,4 @@ async def report(request: sanic_request, tag: str) -> sanic_response:
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000)
+    app.run(host=app.config.LISTEN, port=app.config.PORT)
