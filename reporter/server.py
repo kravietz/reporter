@@ -3,10 +3,9 @@
 
 import psycopg2
 from psycopg2._json import Json
-
-from sanic import Sanic, response, request
-from sanic import response as sanic_response
+from sanic import Sanic
 from sanic import request as sanic_request
+from sanic import response as sanic_response
 from sanic.response import text
 
 __author__ = 'Paweł Krawczyk'
@@ -66,10 +65,22 @@ async def report(request: sanic_request, tag: str) -> sanic_response:
 
     if not all((
             type(data) is dict,
-            'type' in data,
-            data.get('type') in ['network-error'],
+            any((
+                    # https://w3c.github.io/reporting/
+                    data.get('type') in ('deprecation', 'intervention', 'crash'),
+                    # https://www.w3.org/TR/network-error-logging-1/
+                    data.get('type') == 'network-error',
+                    # https://wicg.github.io/feature-policy/
+                    data.get('type') == 'feature-policy-violation',
+                    # https://w3c.github.io/webappsec-csp/
+                    data.get('csp-report'),
+                    # https://tools.ietf.org/html/rfc7469#section-3
+                    data.get('validated-certificate-chain'),
+                    # https://tools.ietf.org/html/draft-ietf-httpbis-expect-ct-07#section-3
+                    data.get('expect-ct-report'),
+            )),
     )):
-        return text('Invalid report', status=400)
+        return text('Unsupported report', status=400)
 
     params = {
         'data': Json(data),
