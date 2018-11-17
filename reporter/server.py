@@ -52,8 +52,15 @@ INSERT INTO reporting_api_report (data, date, ip, user_agent_id, tag_id)
 async def report(request: sanic_request, tag: str) -> sanic_response:
     cursor = database.cursor()
 
+    # obtain client IP, either directly or from proxy header
+    client_ip = request.ip
+    if request.headers.get('X-Real-Ip'):
+        client_ip = request.headers.get('X-Real-Ip')
+
+    # the actual report contents
     data = request.json
 
+    # input validation
     if not data:
         return text('No report', status=400)
 
@@ -67,7 +74,7 @@ async def report(request: sanic_request, tag: str) -> sanic_response:
     params = {
         'data': Json(data),
         'tag': tag,
-        'ip': request.ip,
+        'ip': client_ip,
         'ua': request.headers.get('User-Agent'),
     }
 
