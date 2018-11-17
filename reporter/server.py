@@ -89,7 +89,7 @@ async def report(request: sanic_request, tag: str) -> sanic_response:
         'ua': request.headers.get('User-Agent'),
     }
 
-    if app.config.DEBUG:
+    if app.config.DEBUG == 'yes':
         print(params)
         print(cursor.mogrify(INSERT, params))
 
