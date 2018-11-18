@@ -90,7 +90,6 @@ async def report(request: sanic_request, tag: str) -> sanic_response:
     }
 
     if app.config.DEBUG == 'yes':
-        print(params)
         print(cursor.mogrify(INSERT, params))
 
     cursor.execute(INSERT, params)
