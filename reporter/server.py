@@ -59,10 +59,11 @@ async def report(request: sanic_request, tag: str) -> sanic_response:
     # the actual report contents
     data = request.json
 
-    # input validation
+    # reject empty reports
     if not data:
         return text('No report', status=400)
 
+    # reject unsupported report types
     if not all((
             type(data) is dict,
             any((
@@ -81,6 +82,12 @@ async def report(request: sanic_request, tag: str) -> sanic_response:
             )),
     )):
         return text('Unsupported report', status=400)
+
+    # ignored reports
+    if any((
+            data.get('csp-report') and data.get('csp-report').get('blocked-uri') == 'chrome-extension',
+    )):
+        return text('', status=204)
 
     params = {
         'data': Json(data),

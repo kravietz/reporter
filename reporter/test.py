@@ -24,6 +24,20 @@ NEL = {
   }
 }
 
+CSP = {
+    "csp-report": {
+        "blocked-uri": "chrome-extension",
+        "document-uri": "https://dev.webcookies.org/admin/reporting_api/report/14027/change/",
+        "original-policy": "default-src 'self' https://webcookiesp-20c4.kxcdn.com; report-uri https://reports.krvtz.net/csp",
+        "referrer": "https://dev.webcookies.org/admin/reporting_api/report/",
+        "violated-directive": "default-src"
+    }
+}
+
+
+def ignored_csp_returns_204():
+    request, response = app.test_client.post('/csp', data=json.dumps(CSP))
+    assert response.status == 204
 
 def test_nel_returns_204():
     request, response = app.test_client.post('/aaa', data=json.dumps(NEL))
