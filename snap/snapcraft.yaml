@@ -24,7 +24,7 @@ parts:
     source: git@bitbucket.org:kravietz/reporter.git
     plugin: python
     python-version: python3
-    requirements: requirements.txt
+    requirements: [requirements.txt]
     override-build: |
       snapcraftctl build
       cp -a reporter $SNAPCRAFT_PART_INSTALL/reporter
