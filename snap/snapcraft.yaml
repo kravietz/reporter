@@ -23,6 +23,9 @@ parts:
     plugin: python
     python-version: python3
     requirements: requirements.txt
+    override-pull: |
+      env
+      ls
     override-build: |
       snapcraftctl build
       cp -a reporter $SNAPCRAFT_PART_INSTALL/reporter
