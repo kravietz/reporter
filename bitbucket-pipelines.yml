@@ -7,4 +7,6 @@ pipelines:
           - pip
         script:
           - apt update && apt dist-upgrade -y
+          - pwd
+          - ls
           - /snap/bin/snapcraft
