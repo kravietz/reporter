@@ -7,4 +7,5 @@ pipelines:
           - pip
         script:
           - apt update && apt upgrade -y
+          - apt install -y python3-pip
           - /snap/bin/snapcraft
