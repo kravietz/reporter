@@ -9,5 +9,5 @@ pipelines:
           - apt update && apt dist-upgrade -y
           - pwd
           - ls
-          - cd /opt/atlassian/pipelines/agent/build
-          - /snap/bin/snapcraft
+          - env
+          - cd /opt/atlassian/pipelines/agent/build && /snap/bin/snapcraft
