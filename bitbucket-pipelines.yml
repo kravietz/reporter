@@ -1,0 +1,13 @@
+image: snapcore/snapcraft:stable
+
+pipelines:
+  default:
+    - step:
+        caches:
+          - pip
+        script:
+          - apt update && apt dist-upgrade -y
+          - pwd
+          - ls
+          - env
+          - cd /opt/atlassian/pipelines/agent/build && /snap/bin/snapcraft
