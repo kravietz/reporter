@@ -3,23 +3,13 @@
 
 import psycopg2
 from psycopg2._json import Json
+from psycopg2.extensions import connection
 from sanic import Sanic
 from sanic import request as sanic_request
 from sanic import response as sanic_response
 from sanic.response import text
 
 __author__ = 'Paweł Krawczyk'
-
-# also import environment variables with SANIC_ prefix
-app = Sanic()
-
-database = psycopg2.connect(
-    dbname=app.config.DB_NAME,
-    host=app.config.DB_HOST,
-    port=app.config.DB_PORT,
-    user=app.config.DB_USER,
-    password=app.config.DB_PASS
-)
 
 INSERT = """
 WITH ins_ua AS (
@@ -46,10 +36,30 @@ INSERT INTO reporting_api_report (data, date, ip, user_agent_id, tag_id)
 """
 
 
+def connect(app: Sanic) -> connection:
+    return psycopg2.connect(
+        dbname=app.config.DB_NAME,
+        host=app.config.DB_HOST,
+        port=app.config.DB_PORT,
+        user=app.config.DB_USER,
+        password=app.config.DB_PASS
+    )
+
+
+# creates application object and also imports environment variables with SANIC_ prefix
+app = Sanic()
+database = connect(app)
+
 # noinspection PyCompatibility,PyUnresolvedReferences
 @app.route('/<tag:[a-z0-9-]{,20}>', methods=['POST'])
 async def report(request: sanic_request, tag: str) -> sanic_response:
-    cursor = database.cursor()
+    global database, app
+
+    try:
+        cursor = database.cursor()
+    except psycopg2.InterfaceError:
+        database = connect(app)
+        cursor = database.cursor()
 
     # obtain client IP, either directly or from proxy header
     client_ip = request.ip
