@@ -24,8 +24,9 @@ parts:
     python-version: python3
     requirements: requirements.txt
     override-pull: |
-      env
-      ls
+     pwd
+     cp -a $BITBUCKET_CLONE_DIR/requirements.txt .
+     cp -ra $BITBUCKET_CLONE_DIR/reporter .
     override-build: |
       snapcraftctl build
       cp -a reporter $SNAPCRAFT_PART_INSTALL/reporter
