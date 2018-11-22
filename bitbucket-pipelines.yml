@@ -1,4 +1,4 @@
-image: snapcore/snapcraft:beta
+image: snapcore/snapcraft:stable
 
 pipelines:
   default:

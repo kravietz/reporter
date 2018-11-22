@@ -9,8 +9,6 @@ description: |
 grade: devel
 confinement: strict
 
-base: core
-
 apps:
   reporter:
     plugs:
