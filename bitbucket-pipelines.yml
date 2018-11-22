@@ -6,4 +6,5 @@ pipelines:
         caches:
           - pip
         script:
+          - apt update && apt upgrade -y
           - /snap/bin/snapcraft
