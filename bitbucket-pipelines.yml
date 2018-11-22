@@ -7,7 +7,4 @@ pipelines:
           - pip
         script:
           - apt update && apt dist-upgrade -y
-          - pwd
-          - ls
-          - env
-          - cd /opt/atlassian/pipelines/agent/build && /snap/bin/snapcraft
+          - SNAPCRAFT_CONTAINER_BUILDS=1 /snap/bin/snapcraft
