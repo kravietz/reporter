@@ -1,0 +1,34 @@
+---
+name: reporter
+version: '1'
+version-script: 'date +%y.%j'
+summary: Reporting API
+description: |
+ Receiver endpoint for Reporting API
+
+grade: devel
+confinement: devmode
+
+base: core
+
+apps:
+  reporter:
+    plugs: [network]
+    command: server
+
+parts:
+
+  reporter:
+    source: git@bitbucket.org:kravietz/reporter.git
+    plugin: python
+    python-version: python3
+    requirements: requirements.txt
+    override-build: |
+      snapcraftctl build
+      cp -a reporter $SNAPCRAFT_PART_INSTALL/reporter
+      cd $SNAPCRAFT_PART_INSTALL/reporter
+      python3 -OO -m compileall .
+
+  wrappers:
+    plugin: dump
+    source: wrappers/
