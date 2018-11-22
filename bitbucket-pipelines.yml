@@ -6,4 +6,4 @@ pipelines:
         caches:
           - pip
         script:
-          - SNAPCRAFT_CONTAINER_BUILDS=1 /snap/bin/snapcraft
+          - /snap/bin/snapcraft
