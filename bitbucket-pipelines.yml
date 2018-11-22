@@ -1,0 +1,10 @@
+image: snapcore/snapcraft:stable
+
+pipelines:
+  default:
+    - step:
+        caches:
+          - pip
+        script:
+          - apt update && apt dist-upgrade -y
+          - /snap/bin/snapcraft
