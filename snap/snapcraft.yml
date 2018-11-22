@@ -7,13 +7,15 @@ description: |
  Receiver endpoint for Reporting API
 
 grade: devel
-confinement: devmode
+confinement: strict
 
 base: core
 
 apps:
   reporter:
-    plugs: [network]
+    plugs:
+    - network-bind  # for accepting HTTP connections
+    - network       # for connecting to PostgreSQL
     command: server
 
 parts:
