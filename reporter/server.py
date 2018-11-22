@@ -7,7 +7,7 @@ from psycopg2.extensions import connection
 from sanic import Sanic
 from sanic import request as sanic_request
 from sanic import response as sanic_response
-from sanic.exceptions import NotFound
+from sanic.exceptions import NotFound, MethodNotSupported
 from sanic.response import text
 
 __author__ = 'Paweł Krawczyk'
@@ -52,7 +52,7 @@ app = Sanic()
 database = connect(app)
 
 
-@app.exception(NotFound)
+@app.exception((NotFound, MethodNotSupported))
 def return404(request: sanic_request, exception) -> sanic_response:
     return text('Not found', status=404)
 
