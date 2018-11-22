@@ -7,6 +7,7 @@ from psycopg2.extensions import connection
 from sanic import Sanic
 from sanic import request as sanic_request
 from sanic import response as sanic_response
+from sanic.exceptions import NotFound
 from sanic.response import text
 
 __author__ = 'Paweł Krawczyk'
@@ -49,6 +50,11 @@ def connect(app: Sanic) -> connection:
 # creates application object and also imports environment variables with SANIC_ prefix
 app = Sanic()
 database = connect(app)
+
+
+@app.exception(NotFound)
+def return404(request: sanic_request, exception) -> sanic_response:
+    return text('Not found', status=404)
 
 # noinspection PyCompatibility,PyUnresolvedReferences
 @app.route('/<tag:[a-z0-9-]{,20}>', methods=['POST'])
