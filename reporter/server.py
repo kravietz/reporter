@@ -58,9 +58,8 @@ HEADERS = {"X-Robots-Tag": "noindex,nofollow,noarchive", "Content-Security-Polic
 def return404(request: sanic_request, exception) -> sanic_response:
     return text('Not found', status=404, headers=HEADERS)
 
-
 # noinspection PyCompatibility
-@app.route('/robots.txt', methods=['GET'])
+@app.route('/robots.txt', methods=['GET', 'HEAD'])
 async def report(request: sanic_request, tag: str) -> sanic_response:
     return text('User-agent: *\nDisallow: /', headers=HEADERS)
 
