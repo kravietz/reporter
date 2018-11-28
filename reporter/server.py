@@ -108,12 +108,10 @@ async def report(request: sanic_request, tag: str) -> sanic_response:
         return text('Unsupported report', status=400)
 
     # ignored reports
-    if data.get('csp-report'):
-        if any((
+    if data.get('csp-report') and any((
                 data.get('csp-report').get('blocked-uri') == 'chrome-extension',
-                data.get('csp-report').get('source-file') == 'about',
-        )):
-            return text('', status=204)
+                data.get('csp-report').get('source-file') == 'about',)):
+        return text('', status=204)
 
     params = {
         'data': Json(data),
