@@ -51,10 +51,18 @@ def connect(app: Sanic) -> connection:
 app = Sanic()
 database = connect(app)
 
+NOINDEX = {'X-Robots-Tag': 'noindex,nofollow,noarchive'}
+
 
 @app.exception((NotFound, MethodNotSupported))
 def return404(request: sanic_request, exception) -> sanic_response:
-    return text('Not found', status=404)
+    return text('Not found', status=404).headers(NOINDEX)
+
+
+# noinspection PyCompatibility
+@app.route('/robots.txt', methods=['GET'])
+async def report(request: sanic_request, tag: str) -> sanic_response:
+    return text('User-agent: *\nDisallow: /').headers(NOINDEX)
 
 # noinspection PyCompatibility,PyUnresolvedReferences
 @app.route('/<tag:[a-z0-9-]{,20}>', methods=['POST'])
