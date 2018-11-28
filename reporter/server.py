@@ -51,20 +51,23 @@ def connect(app: Sanic) -> connection:
 app = Sanic()
 database = connect(app)
 
-HEADERS = {"X-Robots-Tag": "noindex,nofollow,noarchive", "Content-Security-Policy": "default-src 'none'"}
+HEADERS = {
+    "X-Robots-Tag": "noindex,nofollow,noarchive",
+    "Content-Security-Policy": "default-src 'none'"}
 
 
+# noinspection PyCompatibility
 @app.exception((NotFound, MethodNotSupported))
-def return404(request: sanic_request, exception) -> sanic_response:
+async def not_found(request: sanic_request, exception) -> sanic_response:
     return text('Not found', status=404, headers=HEADERS)
 
 # noinspection PyCompatibility
 @app.route('/robots.txt', methods=['GET', 'HEAD'])
-async def report(request: sanic_request, tag: str) -> sanic_response:
+async def robots(request: sanic_request) -> sanic_response:
     return text('User-agent: *\nDisallow: /', headers=HEADERS)
 
 # noinspection PyCompatibility,PyUnresolvedReferences
-@app.route('/<tag:[a-z0-9-]{,20}>', methods=['POST'])
+@app.post('/<tag:[a-z0-9-]{,20}>')
 async def report(request: sanic_request, tag: str) -> sanic_response:
     global database, app
 
