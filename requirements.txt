@@ -2,3 +2,7 @@ psycopg2
 psycopg2-binary
 sanic
 aiohttp
+# for build only
+pytest
+bandit
+safety
