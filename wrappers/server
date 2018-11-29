@@ -1,2 +1,0 @@
-#!/bin/sh -e
-exec "$SNAP/usr/bin/python3" "$SNAP/reporter/server.py" "$@"
