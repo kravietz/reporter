@@ -8,6 +8,7 @@ description: |
 
 grade: devel
 confinement: strict
+base: core18
 
 apps:
   reporter:
@@ -23,11 +24,12 @@ parts:
     plugin: python
     python-version: python3
     requirements: requirements.txt
-    override-pull: |
-     pwd
-     cp -a $BITBUCKET_CLONE_DIR/requirements.txt .
-     cp -ra $BITBUCKET_CLONE_DIR/reporter .
     override-build: |
+      pip3 install safety bandit pytest
+      python3 -m pytest reporter/test.py
+      python3 -m safety check
+      python3 -m bandit reporter/server.py
+      pip3 uninstall -y safety bandit pytest
       snapcraftctl build
       cp -a reporter $SNAPCRAFT_PART_INSTALL/reporter
       cd $SNAPCRAFT_PART_INSTALL/reporter
