@@ -3,7 +3,6 @@ psycopg2-binary
 sanic
 aiohttp
 # for build only
-pytest
-bandit
-safety
-# just trigger 5
+#pytest
+#bandit
+#safety
