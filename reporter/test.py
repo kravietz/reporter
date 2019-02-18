@@ -35,10 +35,13 @@ CSP = {
 }
 
 
+def test_raw_returns_204():
+    request, response = app.test_client.post('/raw', data='nothing really')
+    assert response.status == 204
+
 def test_robots_returns_200():
     request, response = app.test_client.get('/robots.txt')
     assert response.status == 200
-
 
 def test_ignored_csp_returns_204():
     request, response = app.test_client.post('/csp', data=json.dumps(CSP))

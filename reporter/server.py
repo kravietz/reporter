@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import codecs
+
 import psycopg2
 from psycopg2._json import Json
 from psycopg2.extensions import connection
@@ -83,8 +85,14 @@ async def report(request: sanic_request, tag: str) -> sanic_response:
         client_ip = request.headers.get('X-Real-Ip')
 
     if tag == 'raw':
-        data = dict(request.headers)
-        data['body'] = request.body
+        data = {'headers': dict(request.headers)}
+        ct = request.headers.get('Content-Type')
+        if ct and 'charset' in ct:
+            charset = ct.split('=')[1]
+        else:
+            charset = 'utf-8'
+        data['body'] = codecs.decode(request.body, charset, 'replace')
+        data['type'] = 'raw'
     else:
         # the actual report contents
         data = request.json
@@ -97,6 +105,7 @@ async def report(request: sanic_request, tag: str) -> sanic_response:
     if not all((
             type(data) is dict,
             any((
+                    data.get('type') == 'raw',
                     # https://w3c.github.io/reporting/
                     data.get('type') in ('deprecation', 'intervention', 'crash'),
                     # https://www.w3.org/TR/network-error-logging-1/
