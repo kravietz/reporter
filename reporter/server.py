@@ -82,8 +82,12 @@ async def report(request: sanic_request, tag: str) -> sanic_response:
     if request.headers.get('X-Real-Ip'):
         client_ip = request.headers.get('X-Real-Ip')
 
-    # the actual report contents
-    data = request.json
+    if tag == 'raw':
+        data = dict(request.headers)
+        data['body'] = request.body
+    else:
+        # the actual report contents
+        data = request.json
 
     # reject empty reports
     if not data:
