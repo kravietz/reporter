@@ -35,8 +35,18 @@ CSP = {
 }
 
 
-def test_raw_returns_204():
-    request, response = app.test_client.post('/raw', data='nothing really')
+def test_xss_returns_204():
+    request, response = app.test_client.get('/xss')
+    assert response.status == 204
+
+
+def test_xxe_returns_204():
+    request, response = app.test_client.get('/xxe')
+    assert response.status == 204
+
+
+def test_magick_returns_204():
+    request, response = app.test_client.post('/magick', data='magick contents')
     assert response.status == 204
 
 def test_robots_returns_200():

@@ -63,36 +63,35 @@ HEADERS = {
 async def not_found(request: sanic_request, exception) -> sanic_response:
     return text('Not found', status=404, headers=HEADERS)
 
+
 # noinspection PyCompatibility
 @app.route('/robots.txt', methods=['GET', 'HEAD'])
 async def robots(request: sanic_request) -> sanic_response:
     return text('User-agent: *\nDisallow: /', headers=HEADERS)
 
+
 # noinspection PyCompatibility,PyUnresolvedReferences
-@app.post('/<tag:[a-z0-9-]{,20}>')
+@app.route('/<tag:[a-z0-9-]{,20}>', methods=('GET', 'POST'))
 async def report(request: sanic_request, tag: str) -> sanic_response:
     global database, app
-
-    try:
-        cursor = database.cursor()
-    except psycopg2.InterfaceError:
-        database = connect(app)
-        cursor = database.cursor()
 
     # obtain client IP, either directly or from proxy header
     client_ip = request.ip
     if request.headers.get('X-Real-Ip'):
         client_ip = request.headers.get('X-Real-Ip')
 
-    if tag == 'raw':
+    if tag in ('magick', 'xxe', 'xss'):
         data = {'headers': dict(request.headers)}
+        data['type'] = tag
         ct = request.headers.get('Content-Type')
         if ct and 'charset' in ct:
             charset = ct.split('=')[1]
         else:
             charset = 'utf-8'
-        data['body'] = codecs.decode(request.body, charset, 'replace')
-        data['type'] = 'raw'
+        if request.method == 'POST':
+            data['body'] = codecs.decode(request.body, charset, 'replace')
+        else:
+            data['body'] = request.args
     else:
         # the actual report contents
         data = request.json
@@ -105,7 +104,7 @@ async def report(request: sanic_request, tag: str) -> sanic_response:
     if not all((
             type(data) is dict,
             any((
-                    data.get('type') == 'raw',
+                    data.get('type') in ('magick', 'xxe', 'xss'),
                     # https://w3c.github.io/reporting/
                     data.get('type') in ('deprecation', 'intervention', 'crash'),
                     # https://www.w3.org/TR/network-error-logging-1/
@@ -134,6 +133,12 @@ async def report(request: sanic_request, tag: str) -> sanic_response:
         'ip': client_ip,
         'ua': request.headers.get('User-Agent'),
     }
+
+    try:
+        cursor = database.cursor()
+    except psycopg2.InterfaceError:
+        database = connect(app)
+        cursor = database.cursor()
 
     if app.config.DEBUG == 'yes':
         print(cursor.mogrify(INSERT, params))
