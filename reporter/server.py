@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import codecs
+import os
+from pathlib import Path
 
 import psycopg2
 from psycopg2._json import Json
@@ -50,7 +52,13 @@ def connect(app: Sanic) -> connection:
 
 
 # creates application object and also imports environment variables with SANIC_ prefix
-app = Sanic()
+app = Sanic('reporter')
+
+# For testing set SNAP_COMMON=.
+# Under Snapd, SNAP_COMMON=/var/snap/reporter/common
+# https://docs.snapcraft.io/environment-variables/7983
+app.config.from_pyfile(Path(os.environ.get('SNAP_COMMON')) / "settings.py")
+
 database = connect(app)
 
 HEADERS = {
