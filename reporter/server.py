@@ -148,7 +148,7 @@ async def report(request: sanic_request, tag: str) -> sanic_response:
         database = connect(app)
         cursor = database.cursor()
 
-    if app.config.DEBUG == 'yes':
+    if app.config.DEBUG:
         print(cursor.mogrify(INSERT, params))
 
     cursor.execute(INSERT, params)
