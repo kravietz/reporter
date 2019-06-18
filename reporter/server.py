@@ -3,16 +3,20 @@
 
 import codecs
 import os
+import signal
+import sys
 from pathlib import Path
 
 import psycopg2
 from psycopg2._json import Json
+from psycopg2._psycopg import OperationalError
 from psycopg2.extensions import connection
 from sanic import Sanic
 from sanic import request as sanic_request
 from sanic import response as sanic_response
 from sanic.exceptions import NotFound, MethodNotSupported
 from sanic.response import text
+from systemd._daemon import booted, notify
 
 __author__ = 'Paweł Krawczyk'
 
@@ -40,6 +44,11 @@ INSERT INTO reporting_api_report (data, date, ip, user_agent_id, tag_id)
     FROM ins_ua;
 """
 
+HEADERS = {
+    "X-Robots-Tag": "noindex,nofollow,noarchive",
+    "Content-Security-Policy": "default-src 'none'"
+}
+
 
 def connect(app: Sanic) -> connection:
     return psycopg2.connect(
@@ -57,13 +66,23 @@ app = Sanic('reporter')
 # For testing set SNAP_COMMON=.
 # Under Snapd, SNAP_COMMON=/var/snap/reporter/common
 # https://docs.snapcraft.io/environment-variables/7983
-app.config.from_pyfile(Path(os.environ.get('SNAP_COMMON')) / "settings.py")
+try:
+    app.config.from_pyfile(Path(os.environ.get('SNAP_COMMON')) / "settings.py")
+except FileNotFoundError as e:
+    print(e)
+    if booted():
+        notify(f"STATUS={e}")
+        notify(f"STOPPING=1")
+    sys.exit(1)
 
-database = connect(app)
-
-HEADERS = {
-    "X-Robots-Tag": "noindex,nofollow,noarchive",
-    "Content-Security-Policy": "default-src 'none'"}
+try:
+    database = connect(app)
+except OperationalError as e:
+    print(e)
+    if booted():
+        notify(f"STATUS={e}")
+        notify(f"STOPPING=1")
+    sys.exit(1)
 
 
 # noinspection PyCompatibility
@@ -131,8 +150,8 @@ async def report(request: sanic_request, tag: str) -> sanic_response:
 
     # ignored reports
     if data.get('csp-report') and any((
-                data.get('csp-report').get('blocked-uri') == 'chrome-extension',
-                data.get('csp-report').get('source-file') == 'about',)):
+            data.get('csp-report').get('blocked-uri') == 'chrome-extension',
+            data.get('csp-report').get('source-file') == 'about',)):
         return text('', status=204)
 
     params = {
@@ -157,5 +176,21 @@ async def report(request: sanic_request, tag: str) -> sanic_response:
     return text('', status=204)
 
 
+def shutdown(signum: int, frame) -> None:
+    """
+    Properly notify systemd about termination
+    """
+    message = f'Received signal {signum}, shutting down'
+    print(message)
+    if booted():
+        notify(f'STATUS={message}')
+        notify(f"STOPPING=1")
+    sys.exit(0)
+
+
 if __name__ == "__main__":
+    signal.signal(signal.SIGTERM, shutdown)
+    signal.signal(signal.SIGINT, shutdown)
+    if booted():
+        notify("READY=1")
     app.run(host=app.config.LISTEN, port=app.config.PORT)
