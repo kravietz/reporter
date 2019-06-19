@@ -35,6 +35,7 @@ parts:
     - python3-systemd
     - python3-aiohttp
     - python3-psycopg2
+    - libpq5
     prime:
     - -lib/python3.6/site-packages/pytest
     - -test.py
