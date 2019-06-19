@@ -67,7 +67,10 @@ app = Sanic('reporter')
 # Under Snapd, SNAP_COMMON=/var/snap/reporter/common
 # https://docs.snapcraft.io/environment-variables/7983
 try:
-    app.config.from_pyfile(Path(os.environ.get('SNAP_USER_COMMON')) / "settings.py")
+    # we use SNAP_COMMON because the service is running as root
+    # so the config file needs to be placed in root-owned directory anyway
+    # there are plans for snapd to create user accounts for services but not implemented as of 2019
+    app.config.from_pyfile(Path(os.environ.get('SNAP_COMMON')) / "settings.py")
 except FileNotFoundError as e:
     print(e)
     if booted():
