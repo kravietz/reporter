@@ -36,6 +36,7 @@ parts:
     - python3-aiohttp
     - python3-psycopg2
     - libpq5
+    - libgssapi-krb5-2
     prime:
     - -lib/python3.6/site-packages/pytest
     - -test.py
