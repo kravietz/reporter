@@ -32,7 +32,7 @@ parts:
     - python3-aiohttp
     - python3-psycopg2
     - libpq5
-    - libgssapi-krb5-
+    - libgssapi-krb5-2
     stage-packages:
     - python3-systemd
     - python3-aiohttp
