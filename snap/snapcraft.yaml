@@ -1,0 +1,46 @@
+---
+name: reporter
+version: '1' # ignored with version-script but still required
+version-script: /usr/bin/env python3 -c 'print(__import__("reporter").__version__)'
+summary: Reporting API
+description: |
+ Receiver endpoint for Reporting API
+
+grade: devel
+confinement: strict
+base: core18
+
+apps:
+  reporter:
+    plugs:
+    - network-bind  # for accepting HTTP connections
+    - network       # for connecting to PostgreSQL
+# Not working as of 2019
+# https://forum.snapcraft.io/t/its-a-little-bit-hard-to-use-daemon-notify-for-sd-notify/6366
+#    - daemon-notify
+    command: "bin/reporter"
+    daemon: simple
+
+parts:
+
+  reporter:
+    source: .
+    plugin: python
+    python-version: python3
+    build-packages:
+    - python3-systemd
+    - python3-aiohttp
+    - python3-psycopg2
+    stage-packages:
+    - python3-systemd
+    - python3-aiohttp
+    - python3-psycopg2
+    prime:
+    - -lib/python3.6/site-packages/pytest
+    - -test.py
+    - -bin/chardetect
+    - -usr/share/man
+    - -usr/share/doc
+    - -usr/bin/python3.6m
+    - -usr/lib/python3.7
+

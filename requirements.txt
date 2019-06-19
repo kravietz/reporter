@@ -1,5 +1,5 @@
-psycopg2
-psycopg2-binary
+#psycopg2
+#psycopg2-binary
 sanic
-aiohttp
-systemd-python
+#aiohttp
+#systemd-python
