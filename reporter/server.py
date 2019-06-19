@@ -67,7 +67,7 @@ app = Sanic('reporter')
 # Under Snapd, SNAP_COMMON=/var/snap/reporter/common
 # https://docs.snapcraft.io/environment-variables/7983
 try:
-    app.config.from_pyfile(Path(os.environ.get('SNAP_COMMON')) / "settings.py")
+    app.config.from_pyfile(Path(os.environ.get('SNAP_USER_COMMON')) / "settings.py")
 except FileNotFoundError as e:
     print(e)
     if booted():
@@ -188,9 +188,13 @@ def shutdown(signum: int, frame) -> None:
     sys.exit(0)
 
 
-if __name__ == "__main__":
+def main() -> None:
     signal.signal(signal.SIGTERM, shutdown)
     signal.signal(signal.SIGINT, shutdown)
     if booted():
         notify("READY=1")
     app.run(host=app.config.LISTEN, port=app.config.PORT)
+
+
+if __name__ == "__main__":
+    main()
